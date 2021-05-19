@@ -6,7 +6,7 @@ class_name CameraRig
 
 signal aim_fired(target_position)
 
-onready var camera: InterpolatedCamera = $InterpolatedCamera
+onready var camera: CameraTween = $InterpolatedCamera
 onready var spring_arm: SpringArm = $SpringArm
 onready var aim_ray: RayCast = $InterpolatedCamera/AimRay
 onready var aim_target: Sprite3D = $AimTarget
@@ -22,6 +22,9 @@ func _ready() -> void:
 	set_as_toplevel(true)
 	yield(owner, "ready")
 	player = owner
+	
+	#API of CameraTween replacing the "InterpolatedCamera" deprecated node
+	camera.follow($SpringArm/CameraTarget, 0.2)
 
 
 func _get_configuration_warning() -> String:

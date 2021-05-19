@@ -21,6 +21,9 @@ script = ExtResource( 1 )
 [node name="Mannequiny" parent="." instance=ExtResource( 2 )]
 transform = Transform( -1, 0, -8.74228e-08, 0, 1, 0, 8.74228e-08, 0, -1, 0, 0, 0.222992 )
 
+[node name="CameraFocusHead" parent="Mannequiny/root" index="2"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -7.74097e-10, 1.6445, 0.145907 )
+
 [node name="AnimationTree" parent="Mannequiny" index="2"]
 parameters/playback = SubResource( 1 )
 
