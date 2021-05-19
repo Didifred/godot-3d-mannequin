@@ -4,8 +4,9 @@ The original GDQuest demo is modified to demonstrate the usage of CameraTween no
 
 
 
+___
 
-## GDQUEST inital readme
+## GDQUEST readme
 
 ![banner image showing the character in several poses](https://repository-images.githubusercontent.com/199621943/d1716f00-1fe7-11ea-9d26-88ac15f865c7)
 
