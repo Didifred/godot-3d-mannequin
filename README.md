@@ -2,6 +2,7 @@
 
 The original GDQuest demo is modified to demonstrate the usage of CameraTween node, available as plugin here : https://github.com/Didifred/godot-camera-tween.
 
+Content of the demo :
 - Initial camera movement from top wide view to focus near the front of the player using bezier curve 3D and a cubic in-out temporal easing.
 - Then camera turn around player to look at his back using exponential in-out easing
 - If the user move before end of the intro animation, smooth transition from the intro camera animation to the 3rd view camera system.
