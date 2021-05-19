@@ -1,3 +1,12 @@
+## CameraTween demo
+
+The original GDQuest demo is modified to demonstrate the usage of CameraTween node, available as plugin here https://github.com/Didifred/godot-camera-tween.
+
+
+
+
+## GDQUEST inital readme
+
 ![banner image showing the character in several poses](https://repository-images.githubusercontent.com/199621943/d1716f00-1fe7-11ea-9d26-88ac15f865c7)
 
 Open 3D Mannequin is an Open Source 3d character and character controller for the [Godot game engine](https://godotengine.org/)
@@ -98,3 +107,8 @@ This project is dual-licensed:
 
 - The source code is available under the MIT license.
 - Art assets (images, audio files) are [CC-By 4.0](https://creativecommons.org/licenses/by/4.0/). You can attribute them to `GDQuest and contributors (https://www.gdquest.com/)`.
+
+
+
+
+
