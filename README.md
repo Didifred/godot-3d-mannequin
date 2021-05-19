@@ -1,6 +1,6 @@
 ## CameraTween demo
 
-The original GDQuest demo is modified to demonstrate the usage of CameraTween node, available as plugin here https://github.com/Didifred/godot-camera-tween.
+The original GDQuest demo is modified to demonstrate the usage of CameraTween node, available as plugin here : https://github.com/Didifred/godot-camera-tween.
 
 
 
