@@ -14,7 +14,7 @@ func _ready() -> void:
 	# Put the camera front of the player
 	$CameraTween.interpolate_looking_at($Player/Mannequiny/root/CameraFront, 
 										$Player/Mannequiny/root/CameraFocus,
-										5, Tween.TRANS_CUBIC, Tween.EASE_IN_OUT, 0.5)
+										5, Tween.TRANS_CUBIC, Tween.EASE_IN_OUT, 2)
 	$CameraTween.start()
 	
 	$CameraTween.connect("camera_tween_completed", self, "_on_camera_tween_completed")

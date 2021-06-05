@@ -22,7 +22,7 @@ _global_script_classes=[ {
 "base": "Camera",
 "class": "CameraTween",
 "language": "GDScript",
-"path": "res://addons/camera_tween.gd"
+"path": "res://addons/camera_tween/camera_tween.gd"
 }, {
 "base": "Spatial",
 "class": "Mannequiny",
@@ -77,7 +77,7 @@ window/stretch/aspect="keep"
 
 [editor_plugins]
 
-enabled=PoolStringArray( "." )
+enabled=PoolStringArray( "camera_tween" )
 
 [input]
 

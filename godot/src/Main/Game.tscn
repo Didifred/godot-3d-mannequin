@@ -8,7 +8,7 @@
 [ext_resource path="res://src/Debug/DebugPanel.tscn" type="PackedScene" id=6]
 [ext_resource path="res://assets/theme/gdquest.theme" type="Theme" id=7]
 [ext_resource path="res://src/Debug/DebugDock.gd" type="Script" id=8]
-[ext_resource path="res://addons/camera_tween.gd" type="Script" id=9]
+[ext_resource path="res://addons/camera_tween/camera_tween.gd" type="Script" id=9]
 
 [sub_resource type="PlaneMesh" id=1]
 size = Vector2( 100, 100 )
