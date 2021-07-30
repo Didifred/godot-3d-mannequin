@@ -33,13 +33,25 @@ visible = false
 [node name="Playground" parent="." instance=ExtResource( 5 )]
 transform = Transform( -4.37114e-08, 0, -1, 0, 1, 0, 1, 0, -4.37114e-08, 0, 0, -16 )
 
-[node name="Camera1" type="Camera" parent="."]
+[node name="CameraInitial" type="Camera" parent="."]
 transform = Transform( 1, 0, 0, 0, 0.937762, 0.347279, 0, -0.347279, 0.937762, -12.4179, 16.9799, 12.6555 )
 
 [node name="CameraTween" type="Camera" parent="."]
 transform = Transform( 1, 0, 0, 0, 0.937762, 0.347279, 0, -0.347279, 0.937762, -12.4179, 16.9799, 12.6555 )
 current = true
 script = ExtResource( 9 )
+
+[node name="IntermediatePoint1" type="Position3D" parent="."]
+transform = Transform( 3, 0, 0, 0, 3, 0, 0, 0, 3, 8.31884, 14.9062, 5.95994 )
+
+[node name="IntermediatePoint2" type="Position3D" parent="."]
+transform = Transform( 3, 0, 0, 0, 3, 0, 0, 0, 3, 8.31884, 3.33216, -0.0682125 )
+
+[node name="IntermediatePoint3" type="Position3D" parent="."]
+transform = Transform( 3, 0, 0, 0, 3, 0, 0, 0, 3, -1.26639, 1.77453, -9.49425 )
+
+[node name="IntermediatePoint4" type="Position3D" parent="."]
+transform = Transform( 3, 0, 0, 0, 3, 0, 0, 0, 3, -12.3742, 10.2897, -0.0682125 )
 
 [node name="TestMap" type="Spatial" parent="."]
 

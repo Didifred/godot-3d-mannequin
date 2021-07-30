@@ -13,7 +13,7 @@ export var bake_interval = 0.5
 export var follow_target = false 
 
  # minimum distance between the camera and the focused object to avoid
-export var minimum_distance_factor = 0.8
+export var camera_minimum_distance = 5
 
 # used to avoid the object
 export var object_up_vector = Vector3(0,1,0) 
@@ -32,8 +32,10 @@ var _target_object_focus: Spatial
 var _initial_global_transform : Transform
 var _path : Curve3D
 var _speed = 0
+var intermediate_points : PoolVector3Array # PoolArray of of Vector3
 var _duration = 0 setget set_duration, get_duration
 var _tween_in_progress = false setget ,is_tween_in_progress
+
 
 var _previous_time = 0
 
@@ -42,12 +44,15 @@ var _previous_time = 0
 #  the duration looking at target_object_focus spatial node.
 #  @target_camera_position The target position node (can be a Camera node)
 #  @target_object_focus The node to look at 
-#  @duration the duration in seconds of the animation
+#  @duration The duration in seconds of the animation
 #  @trans_type The transition type of the tween (see Tween enum TransitionType)
 #  @ease_type The ease type of the tween (see Tween enum EaseType)
 #  @delay Delay in seconds to start the animation
 #  @follow Camera follow in realtime the target camera (usefull when it can move during animation)
-func interpolate_looking_at(target_camera_position : Spatial, target_object_focus : Spatial, duration : float, trans_type=0, ease_type=2, delay=0, follow=false ) :
+#  @intermediate_points Intermediate points between current position and target_camera_position
+func interpolate_looking_at(target_camera_position : Spatial, target_object_focus : Spatial,  
+							duration : float, trans_type=0, ease_type=2, delay=0, follow=false,
+							intermediate_points : PoolVector3Array = PoolVector3Array()) :
 	assert(target_camera_position != null)
 	assert(target_object_focus != null)
 
@@ -67,7 +72,7 @@ func interpolate_looking_at(target_camera_position : Spatial, target_object_focu
 		# set by default physics, allowing regular animation
 		_tween.set_tween_process_mode(Tween.TWEEN_PROCESS_PHYSICS)
 		if ((bezier_curve_enable ==true) and (follow == false)) :
-			_build_new_path()
+			_build_new_path(intermediate_points)
 			
 ## Interpolate the camera between current position and a target one during the duration 
 #  @target_camera_position The target position node (can be a Camera node)
@@ -76,7 +81,10 @@ func interpolate_looking_at(target_camera_position : Spatial, target_object_focu
 #  @ease_type The ease type of the tween (see Tween enum EaseType)
 #  @delay Delay in seconds to start the animation
 #  @follow Camera follow in realtime the target object
-func interpolate(target_camera_position : Spatial, duration : float, trans_type=0, ease_type=2, delay=0, follow=false ) :
+#  @intermediate_points Intermediate points between current position and target_camera_position
+func interpolate(target_camera_position : Spatial, 
+				 duration : float, trans_type=0, ease_type=2, delay=0, follow=false,
+				 intermediate_points : PoolVector3Array = PoolVector3Array()) :
 	assert(target_camera_position != null)
 
 	if _tween_in_progress == false:
@@ -95,7 +103,7 @@ func interpolate(target_camera_position : Spatial, duration : float, trans_type=
 		# set by default physics, allowing regular animation
 		_tween.set_tween_process_mode(Tween.TWEEN_PROCESS_PHYSICS)
 		if ((bezier_curve_enable ==true) and (follow == false)) :
-			_build_new_path()
+			_build_new_path(intermediate_points)
 
 ## Follow in realime the target camera looking at target_object_focus spatial node.
 #  @target_camera_position The target position node of the camera
@@ -129,7 +137,7 @@ func follow(target_camera_position : Spatial, duration : float) :
 	_duration = duration
 	
 	follow_target = true
-	
+
 	
 ## Start the tween animation with parameters set previously by interpolate_camera
 func start() :
@@ -164,7 +172,7 @@ func _ready():
 	add_child(_tween)
 	_tween.connect("tween_all_completed", self, "_on_tween_all_completed")
 
-func _build_new_path():
+func _build_new_path(intermediate_points : PoolVector3Array):
 	if _path == null :
 		_path = Curve3D.new()
 		_path.up_vector_enabled = false
@@ -175,33 +183,53 @@ func _build_new_path():
 	
 	#initial camera direction at the beginning of the curve
 	var target_camera_position_transform = _target_camera_position.global_transform
-	var initial_camera_direction = (target_camera_position_transform.origin -_initial_global_transform.origin)
-	var length_straight =  initial_camera_direction.length()
+	var straight_direction = (target_camera_position_transform.origin -_initial_global_transform.origin)
+	var initial_camera_direction = -_initial_global_transform.basis.z
+	var length_straight =  straight_direction.length()
 	initial_camera_direction = initial_camera_direction.normalized()
 	
-	
 	var final_camera_direction : Vector3
-	var camera_distance : float
 	var target_object_focus_transform : Transform
 	if _target_object_focus != null :
 		# Take the orientation of the final camera direction, simply with vector from target camera position to target object focus
 		target_object_focus_transform = _target_object_focus.global_transform
 		final_camera_direction = (target_object_focus_transform.origin - target_camera_position_transform.origin)
-	
-		camera_distance = final_camera_direction.length()
 	else :
 		# Use the target_camera_position itself to retrieve its orientation
 		final_camera_direction = -_target_camera_position.global_transform.basis.z
 		
 	final_camera_direction = final_camera_direction.normalized()
 	
-	_path.add_point(_initial_global_transform.origin, 
-					-initial_camera_direction*length_straight/3, 
-					initial_camera_direction*length_straight/3)
-	_path.add_point(target_camera_position_transform.origin, 
-					-final_camera_direction*length_straight/3, 
-					final_camera_direction*length_straight/3)
-	
+	if intermediate_points.empty() == true :
+		_path.add_point(_initial_global_transform.origin, 
+						-initial_camera_direction*length_straight/3, 
+						initial_camera_direction*length_straight/3)
+		_path.add_point(target_camera_position_transform.origin, 
+						-final_camera_direction*length_straight/3, 
+						final_camera_direction*length_straight/3)
+	else :
+		#first point
+		length_straight =  (_initial_global_transform.origin - intermediate_points[0]).length()
+		_path.add_point(_initial_global_transform.origin, 
+						-initial_camera_direction*length_straight/3, 
+						initial_camera_direction*length_straight/3)
+		
+		#intermediate points only, controls are computed after
+		for i in range(intermediate_points.size()) :
+			_path.add_point(intermediate_points[i])
+		
+		# last point
+		length_straight = (target_camera_position_transform.origin - intermediate_points[-1]).length()
+		_path.add_point(target_camera_position_transform.origin, 
+						-final_camera_direction*length_straight/3, 
+						final_camera_direction*length_straight/3)
+		
+		# will start with the point index 1 (that is the intermediate_points[0]
+		for i in range(intermediate_points.size()) :
+			# 0.6 to have the smoothest circular approximation curve
+			var controls = _get_control_points(_path.get_point_position(i), _path.get_point_position(i+1), _path.get_point_position(i+2), 0.6)
+			_path.set_point_in(i+1, controls[0])
+			_path.set_point_out(i+1, controls[1])
 	
 	if _target_object_focus != null :
 		# Check minimum distance of camera to avoid object
@@ -209,25 +237,47 @@ func _build_new_path():
 		var radial_vector : Vector3
 		var index_minimum_distance = -1
 		var index = 0
-		var minimum_distance = camera_distance * minimum_distance_factor
+		var minimum_distance = camera_minimum_distance
 		var nb_baked_point = baked_points.size()
 
-		# Find the first camera point inferior to the minimum distance
+		# Find the first camera point inferior to the minimum distance allowed (to avoid target in the camera movement)
 		for point in baked_points :
 			radial_vector =  point - target_object_focus_transform.origin
 			if (radial_vector.length() < minimum_distance) :
 				minimum_distance = radial_vector.length()
 				index_minimum_distance = index
 			index = index + 1
+			
 
 		if (index_minimum_distance != -1)  and  (nb_baked_point > 1) and (index_minimum_distance < nb_baked_point -1) :
+			# Find the point index in the path before the 'minimum distance point' (baked_points[index_minimum_distance])
+			var baked_path_length := _path.get_baked_length()
+			var curve_points_distance = baked_path_length / (nb_baked_point - 1)
+			var vector_point_path : Vector3
+			var vector_point_min_distance : Vector3
+			var index_baked_points := 0
+			var index_path := 0
+			
+			for point in baked_points :
+				vector_point_path = point -_path.get_point_position(index_path)
+				
+				if (vector_point_path.length() < (curve_points_distance / 2)) :
+					index_path = index_path + 1
+					
+				if point == baked_points[index_minimum_distance] :
+					break
+					
+				index_baked_points = index_baked_points + 1
+			
+			assert(index_path > 0)
+				
 			var direction = baked_points[index_minimum_distance+1] - baked_points[index_minimum_distance]
 			var perpendicular_direction = object_up_vector.cross(direction).normalized()
 
 			# check if the point is really the most away to the focus point, in this case get the opposite...
 			# todo check when factor > 1
-			var new_point_side_plus = baked_points[index_minimum_distance] + perpendicular_direction * (camera_distance - minimum_distance)
-			var new_point_side_minus = baked_points[index_minimum_distance] - perpendicular_direction * (camera_distance - minimum_distance)
+			var new_point_side_plus = baked_points[index_minimum_distance] + perpendicular_direction * (camera_minimum_distance - minimum_distance)
+			var new_point_side_minus = baked_points[index_minimum_distance] - perpendicular_direction * (camera_minimum_distance - minimum_distance)
 			var new_point
 		
 			if ((new_point_side_plus - target_object_focus_transform.origin).length() <  
@@ -237,17 +287,37 @@ func _build_new_path():
 				new_point = new_point_side_plus
 		
 			# 0.6 to have the smoothest circular approximation curve
-			var controls = _get_control_points(_path.get_point_position(0), new_point, _path.get_point_position(1), 0.6)
-			_path.add_point(new_point, controls[0], controls[1], 1)
+			var controls = _get_control_points(_path.get_point_position(index_path-1), new_point, _path.get_point_position(index_path), 0.6)
+			# add new point at position index_path
+			_path.add_point(new_point, controls[0], controls[1], index_path)
+			
+			var nb_points = _path.get_point_count()
+			assert(nb_points >= 3)
+			
+			# Adapt control points of previous and next points from new inserted point
+			if index_path == 1 :
+				# adapt the control points for first point after the insertion of the new point
+				var length_straight_first = (_path.get_point_position(1) - _path.get_point_position(0)).length()
+				_path.set_point_in(0, -initial_camera_direction*length_straight_first/3)
+				_path.set_point_out(0, initial_camera_direction*length_straight_first/3)
+			else :
+				# 0.6 to have the smoothest circular approximation curve
+				controls = _get_control_points(_path.get_point_position(index_path-2), _path.get_point_position(index_path-1), _path.get_point_position(index_path), 0.6)
+				_path.set_point_in(index_path - 1, controls[0])
+				_path.set_point_out(index_path - 1, controls[1])
+			
 		
-			# adapt the control points for P0 and P2 after the insertion of the new point
-			var length_straight_01 = (_path.get_point_position(1) - _path.get_point_position(0)).length()
-			var length_straight_12 = (_path.get_point_position(2) - _path.get_point_position(1)).length()
-		
-			_path.set_point_in(0, -initial_camera_direction*length_straight_01/3)
-			_path.set_point_out(0, initial_camera_direction*length_straight_01/3)
-			_path.set_point_in(2, -final_camera_direction*length_straight_12/3)
-			_path.set_point_out(2, final_camera_direction*length_straight_12/3)
+			if index_path == nb_points - 2 :
+				# adapt the control points for last point after the insertion of the new point
+				var length_straight_last = (_path.get_point_position(index_path + 1) - _path.get_point_position(index_path)).length()
+				_path.set_point_in(index_path + 1, -final_camera_direction*length_straight_last/3)
+				_path.set_point_out(index_path + 1, final_camera_direction*length_straight_last/3)
+			else :
+				# 0.6 to have the smoothest circular approximation curve
+				controls = _get_control_points(_path.get_point_position(index_path), _path.get_point_position(index_path + 1), _path.get_point_position(index_path+2), 0.6)
+				_path.set_point_in(index_path + 1, controls[0])
+				_path.set_point_out(index_path + 1, controls[1])
+				
 
 ## Given precedent, current and next point, return control points
 #  @P0 :  Precedent point
@@ -359,8 +429,7 @@ func _avoid_object(current_origin) :
 	var target_object_focus_transform = _target_object_focus.global_transform
 	var target_camera_position_transform = _target_camera_position.global_transform
 	var final_camera_direction = (target_object_focus_transform.origin - target_camera_position_transform.origin)
-	var camera_distance = final_camera_direction.length()
-	var minimum_distance = camera_distance * minimum_distance_factor
+	var minimum_distance = camera_minimum_distance
 	var radial_vector = current_origin - target_object_focus_transform.origin
 
 	if ( radial_vector.length() < minimum_distance) :
