@@ -24,6 +24,8 @@ export var tween_rotation_speed_pow := 1.0
 # progress speed in follow phase, between 0 and 1. If 1, reach immediately the target rotation / camera params
 export var follow_progress_speed := 0.5 
 
+# excentricity of bezier curves (control point strength)
+export var bezier_control_point_strength := 0.6 #default give round circle approximation
 
 var _tween : Tween
 
@@ -202,17 +204,17 @@ func _build_new_path(intermediate_points : PoolVector3Array):
 	
 	if intermediate_points.empty() == true :
 		_path.add_point(_initial_global_transform.origin, 
-						-initial_camera_direction*length_straight/3, 
-						initial_camera_direction*length_straight/3)
+						-initial_camera_direction*length_straight * bezier_control_point_strength / 2, 
+						initial_camera_direction*length_straight * bezier_control_point_strength / 2)
 		_path.add_point(target_camera_position_transform.origin, 
-						-final_camera_direction*length_straight/3, 
-						final_camera_direction*length_straight/3)
+						-final_camera_direction*length_straight * bezier_control_point_strength / 2, 
+						final_camera_direction*length_straight * bezier_control_point_strength / 2)
 	else :
 		#first point
 		length_straight =  (_initial_global_transform.origin - intermediate_points[0]).length()
 		_path.add_point(_initial_global_transform.origin, 
-						-initial_camera_direction*length_straight/3, 
-						initial_camera_direction*length_straight/3)
+						-initial_camera_direction*length_straight * bezier_control_point_strength / 2, 
+						initial_camera_direction*length_straight * bezier_control_point_strength / 2)
 		
 		#intermediate points only, controls are computed after
 		for i in range(intermediate_points.size()) :
@@ -221,13 +223,12 @@ func _build_new_path(intermediate_points : PoolVector3Array):
 		# last point
 		length_straight = (target_camera_position_transform.origin - intermediate_points[-1]).length()
 		_path.add_point(target_camera_position_transform.origin, 
-						-final_camera_direction*length_straight/3, 
-						final_camera_direction*length_straight/3)
+						-final_camera_direction*length_straight * bezier_control_point_strength / 2, 
+						final_camera_direction*length_straight * bezier_control_point_strength / 2)
 		
 		# will start with the point index 1 (that is the intermediate_points[0]
 		for i in range(intermediate_points.size()) :
-			# 0.6 to have the smoothest circular approximation curve
-			var controls := _get_control_points(_path.get_point_position(i), _path.get_point_position(i+1), _path.get_point_position(i+2), 0.6)
+			var controls := _get_control_points(_path.get_point_position(i), _path.get_point_position(i+1), _path.get_point_position(i+2), bezier_control_point_strength)
 			_path.set_point_in(i+1, controls[0])
 			_path.set_point_out(i+1, controls[1])
 	
@@ -286,8 +287,7 @@ func _build_new_path(intermediate_points : PoolVector3Array):
 			else :
 				new_point = new_point_side_plus
 		
-			# 0.6 to have the smoothest circular approximation curve
-			var controls := _get_control_points(_path.get_point_position(index_path-1), new_point, _path.get_point_position(index_path), 0.6)
+			var controls := _get_control_points(_path.get_point_position(index_path-1), new_point, _path.get_point_position(index_path), bezier_control_point_strength)
 			# add new point at position index_path
 			_path.add_point(new_point, controls[0], controls[1], index_path)
 			
@@ -298,11 +298,10 @@ func _build_new_path(intermediate_points : PoolVector3Array):
 			if index_path == 1 :
 				# adapt the control points for first point after the insertion of the new point
 				var length_straight_first = (_path.get_point_position(1) - _path.get_point_position(0)).length()
-				_path.set_point_in(0, -initial_camera_direction*length_straight_first/3)
-				_path.set_point_out(0, initial_camera_direction*length_straight_first/3)
+				_path.set_point_in(0, -initial_camera_direction*length_straight_first * bezier_control_point_strength / 2)
+				_path.set_point_out(0, initial_camera_direction*length_straight_first * bezier_control_point_strength / 2)
 			else :
-				# 0.6 to have the smoothest circular approximation curve
-				controls = _get_control_points(_path.get_point_position(index_path-2), _path.get_point_position(index_path-1), _path.get_point_position(index_path), 0.6)
+				controls = _get_control_points(_path.get_point_position(index_path-2), _path.get_point_position(index_path-1), _path.get_point_position(index_path), bezier_control_point_strength)
 				_path.set_point_in(index_path - 1, controls[0])
 				_path.set_point_out(index_path - 1, controls[1])
 			
@@ -310,11 +309,10 @@ func _build_new_path(intermediate_points : PoolVector3Array):
 			if index_path == nb_points - 2 :
 				# adapt the control points for last point after the insertion of the new point
 				var length_straight_last = (_path.get_point_position(index_path + 1) - _path.get_point_position(index_path)).length()
-				_path.set_point_in(index_path + 1, -final_camera_direction*length_straight_last/3)
-				_path.set_point_out(index_path + 1, final_camera_direction*length_straight_last/3)
+				_path.set_point_in(index_path + 1, -final_camera_direction*length_straight_last * bezier_control_point_strength / 2)
+				_path.set_point_out(index_path + 1, final_camera_direction*length_straight_last * bezier_control_point_strength / 2)
 			else :
-				# 0.6 to have the smoothest circular approximation curve
-				controls = _get_control_points(_path.get_point_position(index_path), _path.get_point_position(index_path + 1), _path.get_point_position(index_path+2), 0.6)
+				controls = _get_control_points(_path.get_point_position(index_path), _path.get_point_position(index_path + 1), _path.get_point_position(index_path+2), bezier_control_point_strength)
 				_path.set_point_in(index_path + 1, controls[0])
 				_path.set_point_out(index_path + 1, controls[1])
 				
