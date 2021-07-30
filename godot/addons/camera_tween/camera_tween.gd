@@ -6,6 +6,9 @@ signal camera_tween_completed
 # use a curve trajectory for camera tween animation 
 export var bezier_curve_enable := true
 
+# excentricity of bezier curves (control point strength)
+export var bezier_control_point_strength := 0.6 #default give round circle approximation
+
 # interval distance of pre-calculated points for the Curve3D
 export var bake_interval := 0.5
 
@@ -15,17 +18,16 @@ export var follow_target := false
  # minimum distance between the camera and the focused object to avoid
 export var camera_minimum_distance := 5.0
 
-# used to avoid the object
+# used as up vector diretion to avoid the object
 export var object_up_vector := Vector3(0,1,0) 
 
-# rotation speed pow, value > 1.0 make slow progress to target orientation at the beginning of animation
+# rotation speed pow, value > 1.0 / < 1.0 make slow / fast progress to target orientation at the beginning of animation
 export var tween_rotation_speed_pow := 1.0
 
 # progress speed in follow phase, between 0 and 1. If 1, reach immediately the target rotation / camera params
 export var follow_progress_speed := 0.5 
 
-# excentricity of bezier curves (control point strength)
-export var bezier_control_point_strength := 0.6 #default give round circle approximation
+
 
 var _tween : Tween
 
