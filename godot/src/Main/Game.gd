@@ -86,7 +86,7 @@ func _on_camera_tween_completed() :
 			
 			$CameraTween.interpolate_looking_at($Player/CameraRig/SpringArm/CameraTarget, #target_camera_position
 												$Player/Mannequiny/root/CameraFocusHead,  #target_object_focus
-												5, #duration 
+												7, #duration 
 												Tween.TRANS_SINE, #trans_type
 												Tween.EASE_IN_OUT, #ease_type
 												1, #delay

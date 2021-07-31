@@ -24,6 +24,9 @@ script = ExtResource( 3 )
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -1.58673, -0.0176746, -5.36121 )
 collision_mask = 2
 
+[node name="InterpolatedCamera" parent="Player/CameraRig" index="0"]
+camera_minimum_distance = 4.0
+
 [node name="SpringArm" parent="Player/CameraRig" index="1"]
 collision_mask = 2147483650
 
@@ -48,10 +51,10 @@ transform = Transform( 3, 0, 0, 0, 3, 0, 0, 0, 3, 8.31884, 14.9062, 5.95994 )
 transform = Transform( 3, 0, 0, 0, 3, 0, 0, 0, 3, 8.31884, 3.33216, -0.0682125 )
 
 [node name="IntermediatePoint3" type="Position3D" parent="."]
-transform = Transform( 3, 0, 0, 0, 3, 0, 0, 0, 3, -1.26639, 1.77453, -9.49425 )
+transform = Transform( 3, 0, 0, 0, 3, 0, 0, 0, 3, -2.24202, 2.28224, -8.30141 )
 
 [node name="IntermediatePoint4" type="Position3D" parent="."]
-transform = Transform( 3, 0, 0, 0, 3, 0, 0, 0, 3, -12.3742, 10.2897, -0.0682125 )
+transform = Transform( 3, 0, 0, 0, 3, 0, 0, 0, 3, -6.55327, 12.3872, -0.0682125 )
 
 [node name="TestMap" type="Spatial" parent="."]
 
@@ -68,7 +71,7 @@ transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1, 0 )
 shape = SubResource( 2 )
 
 [node name="DirectionalLight" type="DirectionalLight" parent="."]
-transform = Transform( 0.766044, 0.166366, -0.620885, 0.271654, 0.791635, 0.547283, 0.582563, -0.587909, 0.561233, -3.00978, 2.72808, 0 )
+transform = Transform( 0.766044, 0.166366, -0.620885, 0.271654, 0.791635, 0.547283, 0.582563, -0.587909, 0.561233, -3.00978, 23.4898, 0 )
 light_energy = 0.8
 shadow_enabled = true
 directional_shadow_blend_splits = true
