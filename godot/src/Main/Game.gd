@@ -8,7 +8,7 @@ export var camera_intermediate_points_option = true
 onready var _view = BIRD_VIEW
 
 func _ready() -> void:
-	Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
+	#Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
 	
 	_view = BIRD_VIEW_TO_THIRD_PERSON
 	
