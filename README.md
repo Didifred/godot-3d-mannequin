@@ -3,6 +3,7 @@
 The original GDQuest demo is modified adding a introduction scene with camera movements using CameraTween node, switching to the original third person view system once player move the mannequin, to demonstrate the usage of CameraTween node, available as plugin here : https://github.com/Didifred/godot-camera-tween.
 
 Different uses cases using the API of CameraTween to make nice movements of camera easily in Game.gd:
+
 https://user-images.githubusercontent.com/54324746/127784737-c19a50ae-f63d-43ee-ad58-9cc740fe0948.mp4
 ___
 
